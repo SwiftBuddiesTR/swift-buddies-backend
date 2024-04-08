@@ -1,8 +1,11 @@
-package post
+package models
 
 type PostModel struct {
-	ID      string `bson:"_id" json:"id"`
-	Content string
+	ID       string `bson:"_id" json:"id"`
+	Content  string `json:"content"`
+	ImageUrl string `json:"imageUrl"`
+	Text     string `json:"text"`
+	UserId   string `json:"userId"`
 }
 
 type PostInput struct {
