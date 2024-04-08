@@ -1,14 +1,17 @@
 package post
 
 type PostModel struct {
-	ID string `bson:"_id" json:"id"`
+	ID      string `bson:"_id" json:"id"`
 	Content string
 }
 
 type PostInput struct {
-	Content string
+	Content  string `json:"content"`
+	ImageUrl string `json:"imageUrl"`
+	Text     string `json:"text"`
+	UserId   string `json:"userId"`
 }
-//
+
 type AddCategoryInput struct {
 	Name string `json:"name" bson:"name"`
 }
