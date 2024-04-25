@@ -3,118 +3,149 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
-	models "swift-buddies-backend/models"
 
-	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	// "google.golang.org/api/idtoken"
 )
 
-func CreatePostEndPoint(w http.ResponseWriter, r *http.Request) {
-	if r.Body == nil || r.ContentLength == 0 {
-		http.Error(w, "Request must have a body", http.StatusBadRequest)
-		return
-	}
-
-	coll := client.Database("sample_mflix").Collection("posts")
-	defer r.Body.Close()
-
-	var newPost models.PostInput
-	if err := json.NewDecoder(r.Body).Decode(&newPost); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		return
-	}
-
-	// Insert post into the database
-	result, err := coll.InsertOne(context.TODO(), newPost)
-	if err != nil {
-		http.Error(w, "Failed to insert post", http.StatusInternalServerError)
-		log.Printf("Failed to insert post: %v", err)
-		return
-	}
-
-	// Fetch the inserted post using the InsertedID
-	var savedPost models.PostModel
-	if err := coll.FindOne(context.TODO(), bson.M{"_id": result.InsertedID}).Decode(&savedPost); err != nil {
-		http.Error(w, "Failed to fetch saved post", http.StatusInternalServerError)
-		log.Printf("Failed to fetch saved post: %v", err)
-		return
-	}
-
-	// Respond with the saved post
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(savedPost); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.Printf("Failed to encode saved post: %v", err)
-		return
-	}
+// User struct to represent user information
+type User struct {
+	RegisterType string `json:"registerType"`
+	AccessToken  string `json:"accessToken"`
 }
 
-func GetPostEndPoint(w http.ResponseWriter, r *http.Request) {
-	coll := client.Database("sample_mflix").Collection("posts")
+type SimpleResponse struct {
+	Message string `json:"message"`
+}
 
-	var result []models.PostModel // Assuming you have imported the package containing the Post struct
+// App struct to encapsulate application state
+type App struct {
+	Collection *mongo.Collection
+}
 
-	// Find all documents in the collection
-	cursor, err := coll.Find(context.Background(), bson.D{})
+// NewApp creates a new instance of the application
+func NewApp() (*App, error) {
+	// Read MongoDB connection URI from environment variable
+	mongoURI := os.Getenv("MONGODB_URI")
+	if mongoURI == "" {
+		return nil, errors.New("MONGODB_URI environment variable not set")
+	}
+
+	// Connect to MongoDB
+	ctx := context.Background()
+	clientOptions := options.Client().ApplyURI(mongoURI)
+	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return nil, err
+	}
+
+	// Access database and collection
+	collection := client.Database("buddiesapp").Collection("users")
+
+	return &App{
+		Collection: collection,
+	}, nil
+}
+
+// Handler for registering a new user
+func (a *App) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse JSON request body into User struct
+	decoder := json.NewDecoder(r.Body)
+	var user User
+	if err := decoder.Decode(&user); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	defer cursor.Close(context.Background())
 
-	// Decode each document into the result slice
-	for cursor.Next(context.Background()) {
-		var post models.PostModel
-		if err := cursor.Decode(&post); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+	if user.RegisterType != "google" && user.RegisterType != "apple" {
+		http.Error(w, "Invalid registerType", http.StatusBadRequest)
+		return
+	}
+
+	if user.AccessToken == "" {
+		http.Error(w, "accessToken is required", http.StatusBadRequest)
+		return
+	}
+
+	if user.RegisterType == "google" {
+		bearerToken := user.AccessToken
+
+		req, err := http.NewRequest("GET", "https://www.googleapis.com/oauth2/v3/userinfo", nil)
+		if err != nil {
+			fmt.Println("Error creating request:", err)
 			return
 		}
-		result = append(result, post)
+		req.Header.Set("Authorization", "Bearer "+bearerToken)
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			fmt.Println("Error sending request:", err)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode == http.StatusUnauthorized {
+
+			response := SimpleResponse{
+				Message: "Unauthorized",
+			}
+
+			jsonResponse, err := json.Marshal(response)
+			if err != nil {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(jsonResponse)
+			return
+		}
+
+		// Read and print response body
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Println("Error reading response:", err)
+			return
+		}
+		fmt.Println(string(body))
+
+		// TODO:
+		// Check if the user is already registered
+		// After checking, if the user is not registered, insert the user into MongoDB collection
+		// If the user is already registered, return a token and refreshToken
 	}
 
-	// Check for errors encountered during cursor iteration
-	if err := cursor.Err(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	// Insert user into MongoDB collection
+	// _, err := a.Collection.InsertOne(context.Background(), user)
+	// if err != nil {
+	//     http.Error(w, "Failed to register user", http.StatusInternalServerError)
+	//     return
+	// }
 
-	// Encode the result slice to JSON and write it as the response
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(result); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	// Return a success response
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
 }
 
-var client *mongo.Client
-
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
-	}
-
-	uri := os.Getenv("MONGODB_URI")
-	if uri == "" {
-		log.Fatal("You must set your 'MONGODB_URI' environment variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable")
-	}
-	mongodb, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	// Create a new instance of the application
+	app, err := NewApp()
 	if err != nil {
-		panic(err)
-	}
-	client = mongodb
-
-	r := mux.NewRouter()
-
-	r.HandleFunc("/posts", GetPostEndPoint).Methods("GET")
-	r.HandleFunc("/create/post", CreatePostEndPoint).Methods("POST")
-
-	if err := http.ListenAndServe(":3000", r); err != nil {
 		log.Fatal(err)
 	}
+
+	// Define HTTP routes
+	http.HandleFunc("/register", app.RegisterUserHandler)
+
+	// Start the HTTP server
+	fmt.Println("Server running on localhost:3000")
+	log.Fatal(http.ListenAndServe(":3000", nil))
 }
