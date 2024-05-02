@@ -35,6 +35,14 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
+	err = client.Ping(context.TODO(), nil)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Connected to MongoDB!")
+
 	// Access database and collection
 	collection := client.Database("buddiesapp").Collection("users")
 
@@ -174,7 +182,7 @@ func (a *App) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 			uuid := uuid.New()
 
 			newUser := User{
-				ID:           uuid.String(), 
+				ID:           uuid.String(),
 				Name:         string(userCredentials.Name),
 				Email:        string(userCredentials.Email),
 				Picture:      string(userCredentials.Picture),
@@ -203,7 +211,7 @@ func (a *App) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(jsonResponse)
-			return			
+			return
 		} else if err != nil {
 			log.Fatal(err)
 		} else {
@@ -222,7 +230,7 @@ func (a *App) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(jsonResponse)
-			return		
+			return
 		}
 
 		// After checking, if the user is not registered, insert the user into MongoDB collection
