@@ -22,6 +22,7 @@ type User struct {
 }
 
 type RegisterReturn struct {
+	Status       string `json:"status"`
 	Token        string `json:"token"`
 	RefreshToken string `json:"refreshToken"`
 }

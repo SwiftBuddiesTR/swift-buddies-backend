@@ -22,7 +22,13 @@ import (
 func NewApp() (*App, error) {
 	godotenv.Load()
 
-	mongoURI := os.Getenv("MONGODB_URI")
+	var myEnv map[string]string
+	myEnv, err := godotenv.Read()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	mongoURI := myEnv["MONGODB_URI"]
 	if mongoURI == "" {
 		return nil, errors.New("MONGODB_URI environment variable not set")
 	}
@@ -151,32 +157,25 @@ func (a *App) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// response tokenString with json format
-		response := SimpleResponse{
-			Message: tokenString,
-		}
+		refreshToken := jwt.New(jwt.SigningMethodHS256)
+		refreshTokenClaims := token.Claims.(jwt.MapClaims)
+		refreshTokenClaims["sub"] = "user"
+		refreshTokenClaims["exp"] = time.Now().Add(7 * 24 * time.Hour).Unix()
 
-		jsonResponse, err := json.Marshal(response)
+		// Generate token
+		refreshTokenString, err := refreshToken.SignedString(secretKeyBytes)
 		if err != nil {
-
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			fmt.Println("Error generating token:", err)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(jsonResponse)
-
 		// TODO:
 		// Check if the user is already registered
-
-		filter := bson.M{"email": "dogukaankilicarslan@gmail.com"}
+		filter := bson.M{"email": string(userCredentials.Email)}
 
 		// Try to find the user
 		var existingUser User
-		fmt.Println("finding")
 		err = a.Collection.FindOne(context.Background(), filter).Decode(&existingUser)
-		fmt.Println("okey")
 		if err == mongo.ErrNoDocuments {
 			// If user not found, insert the new user
 			uuid := uuid.New()
@@ -187,7 +186,7 @@ func (a *App) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 				Email:        string(userCredentials.Email),
 				Picture:      string(userCredentials.Picture),
 				Token:        tokenString,
-				RefreshToken: "TODO",
+				RefreshToken: refreshTokenString,
 			}
 
 			// Insert the new user into the collection
@@ -202,6 +201,7 @@ func (a *App) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 			var registerReturn RegisterReturn
 			registerReturn.Token = newUser.Token
 			registerReturn.RefreshToken = newUser.RefreshToken
+			registerReturn.Status = "CREATED"
 			// response registerReturn with json format
 			jsonResponse, err := json.Marshal(registerReturn)
 			if err != nil {
@@ -221,6 +221,7 @@ func (a *App) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 			var registerReturn RegisterReturn
 			registerReturn.Token = existingUser.Token
 			registerReturn.RefreshToken = existingUser.RefreshToken
+			registerReturn.Status = "EXIST"
 			// response registerReturn with json format
 			jsonResponse, err := json.Marshal(registerReturn)
 			if err != nil {
