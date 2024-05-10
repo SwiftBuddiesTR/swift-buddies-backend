@@ -19,8 +19,13 @@ go build -o $APP_NAME .
 
 # Check if systemd service exists, if not, create one
 echo "Check if systemd exists"
+if [ -e "/etc/systemd/system/$APP_NAME.service" ]; then
+  echo "Service already exists"
+  echo "Deleting old service"
+  sudo rm -rf /etc/systemd/system/$APP_NAME.service
+
 if [ ! -e "/etc/systemd/system/$APP_NAME.service" ]; then
-  echo "Create service."
+  echo "Creating new service."
   sudo bash -c "cat > /etc/systemd/system/$APP_NAME.service" <<EOF
 [Unit]
 Description=$APP_NAME Service
@@ -36,9 +41,8 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOF
-else
-  echo "Service already exists"
 fi
+echo "Service created"
 
 echo "Restart daemon"
 sudo systemctl daemon-reload
