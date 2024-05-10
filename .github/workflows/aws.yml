@@ -52,6 +52,7 @@ jobs:
         key: ${{ secrets.AWS_KEY }}
         envs: AWS_HOST,AWS_USERNAME,APP_NAME,APP_EXECUTABLE,REPOSITORY_URL
         script: |
+          echo $AWS_USERNAME
           cd /home/$AWS_USERNAME
           if [ ! -d "$APP_NAME" ]; then
             git clone $REPOSITORY_URL
