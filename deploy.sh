@@ -3,7 +3,7 @@
 # Clone your repository
 cd /home/$AWS_USERNAME
 if [ ! -d "$APP_NAME" ]; then
-  git clone $GITHUB_REPOSITORY_URL
+  git clone $REPOSITORY_URL
 fi
 
 # Pull the latest changes
