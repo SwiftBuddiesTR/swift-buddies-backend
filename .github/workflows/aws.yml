@@ -62,7 +62,6 @@ jobs:
             export REPOSITORY_URL=${{ vars.REPOSITORY_URL }}
 
             export AWS_HOST=${{ secrets.AWS_HOST }}
-            export AWS_KEY=${{ secrets.AWS_KEY }}
             export AWS_USERNAME=${{ secrets.AWS_USERNAME }}
             export MONGODB_URI=${{ secrets.MONGODB_URI }}
             export SECRET_KEY=${{ secrets.SECRET_KEY }}
