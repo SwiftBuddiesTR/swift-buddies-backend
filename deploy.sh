@@ -1,18 +1,31 @@
 #!/bin/bash
-
+echo "APP_NAME is ${{ env.APP_NAME }}"
+echo "REPOSITORY_URL is ${{ env.REPOSITORY_URL }}"
+echo "Username is ${{ secrets.AWS_USERNAME }}"
+echo "REPOSITORY_NAME is ${{ env.REPOSITORY_NAME }}"
+            
+cd /home/${{ secrets.AWS_USERNAME }}
+if [ ! -d "${{ env.APP_NAME }}" ]; then
+  echo "Pulling changes from repository"
+cd ${{ env.REPOSITORY_NAME }}
+  git restore .
+  git pull
+  echo "Pull finished"
+else
+  echo "Cloning repository"
+  git clone ${{ env.REPOSITORY_URL }}
+  echo "Clone finished"
+fi
 # Go to the user's home directory
 cd /home/$AWS_USERNAME
 
 # If the repository directory doesn't exist, clone it
-if [ ! -d "$APP_NAME" ]; then
-  git clone $REPOSITORY_URL
-fi
+# if [ ! -d "$APP_NAME" ]; then
+#   git clone $REPOSITORY_URL
+# fi
 
 # Navigate to the repository directory (which is now guaranteed to exist)
-cd $APP_NAME
-
-# Pull the latest changes
-git pull
+cd $REPOSITORY_NAME
 
 go mod tidy
 # Build the Go application
@@ -26,8 +39,8 @@ Description=$APP_NAME Service
 After=network.target
 
 [Service]
-ExecStart=/home/$AWS_USERNAME/$APP_NAME/$APP_EXECUTABLE
-WorkingDirectory=/home/$AWS_USERNAME/$APP_NAME
+ExecStart=/home/$AWS_USERNAME/$REPOSITORY_NAME/$APP_EXECUTABLE
+WorkingDirectory=/home/$AWS_USERNAME/$REPOSITORY_NAME
 User=$AWS_USERNAME
 Group=$AWS_USERNAME
 Restart=always

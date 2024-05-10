@@ -31,11 +31,11 @@ on:
     branches:
       - main
 
-env:
-   APP_NAME: BuddiesBackend
-   APP_EXECUTABLE: BuddiesBackend
-   REPOSITORY_URL: git@github.com:SwiftBuddiesTR/swift-buddies-backend.git
-   REPOSITORY_NAME: swift-buddies-backend
+# env:
+#    APP_NAME: BuddiesBackend
+#    APP_EXECUTABLE: BuddiesBackend
+#    REPOSITORY_URL: git@github.com:SwiftBuddiesTR/swift-buddies-backend.git
+#    REPOSITORY_NAME: swift-buddies-backend
 
 jobs:
   build:
