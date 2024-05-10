@@ -35,6 +35,7 @@ env:
    APP_NAME: BuddiesBackend
    APP_EXECUTABLE: BuddiesBackend
    REPOSITORY_URL: git@github.com:SwiftBuddiesTR/swift-buddies-backend.git
+   REPOSITORY_NAME: swift-buddies-backend
 
 jobs:
   build:
@@ -53,12 +54,14 @@ jobs:
             echo "APP_NAME is ${{ env.APP_NAME }}"
             echo "REPOSITORY_URL is ${{ env.REPOSITORY_URL }}"
             echo "Username is ${{ secrets.AWS_USERNAME }}"
+            echo "REPOSITORY_NAME is ${{ env.REPOSITORY_NAME }}"
+            
             cd /home/${{ secrets.AWS_USERNAME }}
             if [ ! -d "${{ env.APP_NAME }}" ]; then
               git clone ${{ env.REPOSITORY_URL }}
             else
-              cd ${{ env.APP_NAME }}
+              cd ${{ env.REPOSITORY_NAME }}
               git pull
             fi
-            chmod +x /home/${{ secrets.AWS_USERNAME }}/${{ env.APP_NAME }}/deploy.sh
-            /home/${{ secrets.AWS_USERNAME }}/${{ env.APP_NAME }}/deploy.sh
+            chmod +x /home/${{ secrets.AWS_USERNAME }}/${{ env.REPOSITORY_NAME }}/deploy.sh
+            /home/${{ secrets.AWS_USERNAME }}/${{ env.REPOSITORY_NAME }}/deploy.sh
