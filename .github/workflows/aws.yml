@@ -58,10 +58,11 @@ jobs:
             
             cd /home/${{ secrets.AWS_USERNAME }}
             if [ ! -d "${{ env.APP_NAME }}" ]; then
-              git clone ${{ env.REPOSITORY_URL }}
-            else
               cd ${{ env.REPOSITORY_NAME }}
+              git restore .
               git pull
+            else
+              git clone ${{ env.REPOSITORY_URL }}
             fi
             chmod +x /home/${{ secrets.AWS_USERNAME }}/${{ env.REPOSITORY_NAME }}/deploy.sh
             /home/${{ secrets.AWS_USERNAME }}/${{ env.REPOSITORY_NAME }}/deploy.sh
