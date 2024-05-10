@@ -31,6 +31,11 @@ on:
     branches:
       - main
 
+env:
+  APP_NAME: BuddiesBackend
+  APP_EXECUTABLE: BuddiesBackend
+  REPOSITORY_URL: https://github.com/SwiftBuddiesTR/swift-buddies-backend.git
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -56,4 +61,3 @@ jobs:
           fi
           chmod +x /home/$AWS_USERNAME/$APP_NAME/deploy.sh
           /home/$AWS_USERNAME/$APP_NAME/deploy.sh
-
