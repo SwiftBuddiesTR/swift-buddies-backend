@@ -13,7 +13,7 @@ cd $REPOSITORY_NAME
 
 go mod tidy
 # Build the Go application
-go build -o $APP_EXECUTABLE .
+go build -o $APP_NAME .
 
 # Check if systemd service exists, if not, create one
 if [ ! -e "/etc/systemd/system/$APP_NAME.service" ]; then
@@ -23,7 +23,7 @@ Description=$APP_NAME Service
 After=network.target
 
 [Service]
-ExecStart=/home/$AWS_USERNAME/$REPOSITORY_NAME/$APP_EXECUTABLE
+ExecStart=/home/$AWS_USERNAME/$REPOSITORY_NAME/$APP_NAME
 WorkingDirectory=/home/$AWS_USERNAME/$REPOSITORY_NAME
 User=$AWS_USERNAME
 Group=$AWS_USERNAME
