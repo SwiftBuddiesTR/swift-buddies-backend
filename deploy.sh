@@ -3,16 +3,10 @@
 # Go to the user's home directory
 cd /home/$AWS_USERNAME/$REPOSITORY_NAME
 
-# If the repository directory doesn't exist, clone it
-# if [ ! -d "$APP_NAME" ]; then
-#   git clone $REPOSITORY_URL
-# fi
-
-# Navigate to the repository directory (which is now guaranteed to exist)
-# cd $REPOSITORY_NAME
-
+# Tidy go environment
 echo "Tidy go env"
 go mod tidy
+
 # Build the Go application
 echo "Start build"
 go build -o $APP_NAME .
@@ -23,15 +17,18 @@ if [ -e "/etc/systemd/system/$APP_NAME.service" ]; then
   echo "Service already exists"
   echo "Deleting old service"
   sudo rm -rf /etc/systemd/system/$APP_NAME.service
+fi
 
-if [ ! -e "/etc/systemd/system/$APP_NAME.service" ]; then
-  echo "Creating new service."
-  sudo bash -c "cat > /etc/systemd/system/$APP_NAME.service" <<EOF
+# Write a new service file
+echo "Creating new service."
+sudo bash -c "cat > /etc/systemd/system/$APP_NAME.service" <<EOF
 [Unit]
 Description=$APP_NAME Service
 After=network.target
 
 [Service]
+Environment="MONGODB_URI=$MONGODB_URI"
+Environment="SECRET_KEY=$SECRET_KEY"
 ExecStart=/home/$AWS_USERNAME/$REPOSITORY_NAME/$APP_NAME
 WorkingDirectory=/home/$AWS_USERNAME/$REPOSITORY_NAME
 User=$AWS_USERNAME
@@ -41,14 +38,14 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOF
-fi
+
 echo "Service created"
 
+# Reload and start the service
 echo "Restart daemon"
 sudo systemctl daemon-reload
 
 echo "Start service"
-# Start the application service
 sudo systemctl start $APP_NAME
 
 # Enable the application service
