@@ -23,13 +23,21 @@ func NewApp() (*App, error) {
 
 	if os.Getenv("ENVIRONMENT") == "development" {
 		// Load values from .env into the system
+		fmt.Println("Env is development!")
 		if err := godotenv.Load(); err != nil {
 			log.Println("No .env file found")
 		}
 	}
-
+	fmt.Println("Env is production!")
 	// Existing code...
 	mongoURI := os.Getenv("MONGODB_URI")
+	appname := os.Getenv("APP_NAME")
+
+	fmt.Println("APP_NAME!")
+	fmt.Println(appname)
+
+	fmt.Println("MONGODB_URI!")
+	fmt.Println(mongoURI)
 	if mongoURI == "" {
 		return nil, errors.New("MONGODB_URI environment variable not set")
 	}
