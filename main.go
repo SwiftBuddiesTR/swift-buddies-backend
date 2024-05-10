@@ -28,13 +28,8 @@ func NewApp() (*App, error) {
 		}
 	}
 
-	var myEnv map[string]string
-	myEnv, err := godotenv.Read()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	mongoURI := myEnv["MONGODB_URI"]
+	// Existing code...
+	mongoURI := os.Getenv("MONGODB_URI")
 	if mongoURI == "" {
 		return nil, errors.New("MONGODB_URI environment variable not set")
 	}
