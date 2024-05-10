@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Add GitHub to the known hosts
+mkdir -p ~/.ssh
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+
 # Clone your repository
 cd /home/$AWS_USERNAME
 if [ ! -d "$APP_NAME" ]; then
