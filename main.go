@@ -20,7 +20,13 @@ import (
 )
 
 func NewApp() (*App, error) {
-	godotenv.Load()
+
+	if os.Getenv("ENVIRONMENT") == "development" {
+		// Load values from .env into the system
+		if err := godotenv.Load(); err != nil {
+			log.Println("No .env file found")
+		}
+	}
 
 	var myEnv map[string]string
 	myEnv, err := godotenv.Read()
