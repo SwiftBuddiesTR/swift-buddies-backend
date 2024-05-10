@@ -47,6 +47,13 @@ jobs:
         key: ${{ secrets.AWS_KEY }}
         envs: AWS_HOST,AWS_USERNAME,APP_NAME,APP_EXECUTABLE,REPOSITORY_URL
         script: |
-          chmod +x /home/ubuntu/BuddiesBackend/deploy.sh
-          /home/ubuntu/BuddiesBackend/deploy.sh
+          cd /home/$AWS_USERNAME
+          if [ ! -d "$APP_NAME" ]; then
+            git clone $REPOSITORY_URL
+          else
+            cd $APP_NAME
+            git pull
+          fi
+          chmod +x /home/$AWS_USERNAME/$APP_NAME/deploy.sh
+          /home/$AWS_USERNAME/$APP_NAME/deploy.sh
 
