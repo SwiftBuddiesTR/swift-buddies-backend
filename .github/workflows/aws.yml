@@ -60,12 +60,13 @@ jobs:
             export APP_EXECUTABLE=${{ vars.APP_EXECUTABLE }}
             export REPOSITORY_NAME=${{ vars.REPOSITORY_NAME }}
             export REPOSITORY_URL=${{ vars.REPOSITORY_URL }}
+            export ENVIRONMENT=${{ vars.ENVIRONMENT }}
 
             export AWS_HOST=${{ secrets.AWS_HOST }}
             export AWS_USERNAME=${{ secrets.AWS_USERNAME }}
             export MONGODB_URI=${{ secrets.MONGODB_URI }}
             export SECRET_KEY=${{ secrets.SECRET_KEY }}
-
+            
             cd /home/${{ secrets.AWS_USERNAME }}
             if [ ! -d "${{ vars.APP_NAME }}" ]; then
               echo "Pulling changes from repository"
