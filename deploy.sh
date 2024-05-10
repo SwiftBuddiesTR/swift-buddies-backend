@@ -21,7 +21,7 @@ go build -o $APP_NAME .
 echo "Check if systemd exists"
 if [ ! -e "/etc/systemd/system/$APP_NAME.service" ]; then
   echo "Create service."
-  sudo bash -c 'cat > /etc/systemd/system/$APP_NAME.service' <<EOF
+  sudo bash -c "cat > /etc/systemd/system/$APP_NAME.service" <<EOF
 [Unit]
 Description=$APP_NAME Service
 After=network.target
