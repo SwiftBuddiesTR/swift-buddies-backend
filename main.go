@@ -268,8 +268,10 @@ func main() {
 
 	// Define HTTP routes
 	http.HandleFunc("/register", app.RegisterUserHandler)
-
+	host := os.Getenv("AWS_HOST")
 	// Start the HTTP server
-	fmt.Println("Server running on $AWS_HOST")
+	fmt.Println("Server running on:")
+	fmt.Println(host)
+
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
