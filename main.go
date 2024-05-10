@@ -261,6 +261,6 @@ func main() {
 	http.HandleFunc("/register", app.RegisterUserHandler)
 
 	// Start the HTTP server
-	fmt.Println("Server running on localhost:3000")
+	fmt.Println("Server running on $AWS_HOST")
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
