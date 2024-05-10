@@ -34,6 +34,7 @@ WantedBy=multi-user.target
 EOF
 fi
 
+sudo systemctl daemon-reload
 # Start the application service
 sudo systemctl start $APP_NAME
 
