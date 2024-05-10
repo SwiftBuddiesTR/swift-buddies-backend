@@ -45,7 +45,7 @@ jobs:
         host: ${{ secrets.AWS_HOST }}
         username: ${{ secrets.AWS_USERNAME }}
         key: ${{ secrets.AWS_KEY }}
-        envs: AWS_HOST,AWS_USERNAME,APP_NAME,APP_EXECUTABLE,GITHUB_REPOSITORY_URL
+        envs: AWS_HOST,AWS_USERNAME,APP_NAME,APP_EXECUTABLE,REPOSITORY_URL
         script: |
           chmod +x /home/ec2-user/BuddiesBackend/deploy.sh
           /home/ec2-user/BuddiesBackend/deploy.sh
