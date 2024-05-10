@@ -11,11 +11,14 @@ cd /home/$AWS_USERNAME/$REPOSITORY_NAME
 # Navigate to the repository directory (which is now guaranteed to exist)
 # cd $REPOSITORY_NAME
 
+echo "Tidy go env"
 go mod tidy
 # Build the Go application
+echo "Start build"
 go build -o $APP_NAME .
 
 # Check if systemd service exists, if not, create one
+echo "Check if systemd exists"
 if [ ! -e "/etc/systemd/system/$APP_NAME.service" ]; then
   sudo bash -c 'cat > /etc/systemd/system/$APP_NAME.service' <<EOF
 [Unit]
@@ -33,8 +36,10 @@ Restart=always
 WantedBy=multi-user.target
 EOF
 fi
-
+echo "Restart daemon"
 sudo systemctl daemon-reload
+
+echo "Start service"
 # Start the application service
 sudo systemctl start $APP_NAME
 
