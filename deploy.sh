@@ -1,13 +1,13 @@
 #!/bin/bash
-echo "APP_NAME is ${{ env.APP_NAME }}"
-echo "REPOSITORY_URL is ${{ env.REPOSITORY_URL }}"
+echo "APP_NAME is ${{ vars.APP_NAME }}"
+echo "REPOSITORY_URL is ${{ vars.REPOSITORY_URL }}"
 echo "Username is ${{ secrets.AWS_USERNAME }}"
-echo "REPOSITORY_NAME is ${{ env.REPOSITORY_NAME }}"
+echo "REPOSITORY_NAME is ${{ vars.REPOSITORY_NAME }}"
             
 cd /home/${{ secrets.AWS_USERNAME }}
-if [ ! -d "${{ env.APP_NAME }}" ]; then
+if [ ! -d "${{ vars.APP_NAME }}" ]; then
   echo "Pulling changes from repository"
-cd ${{ env.REPOSITORY_NAME }}
+cd ${{ vars.REPOSITORY_NAME }}
   git restore .
   git pull
   echo "Pull finished"
