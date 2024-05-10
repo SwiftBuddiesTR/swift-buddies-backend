@@ -15,6 +15,11 @@ go build -o $APP_NAME .
 echo "Check if systemd exists"
 if [ -e "/etc/systemd/system/$APP_NAME.service" ]; then
   echo "Service already exists"
+  echo "Killing service"
+  sudo systemctl kill $APP_NAME
+  echo "Cleaning service"
+  sudo systemctl clean $APP_NAME
+
   echo "Deleting old service"
   sudo rm -rf /etc/systemd/system/$APP_NAME.service
 fi
