@@ -14,6 +14,7 @@ cd $APP_NAME
 # Pull the latest changes
 git pull
 
+go mod tidy
 # Build the Go application
 go build -o $APP_EXECUTABLE .
 
