@@ -1,21 +1,5 @@
 #!/bin/bash
-echo "APP_NAME is ${{ vars.APP_NAME }}"
-echo "REPOSITORY_URL is ${{ vars.REPOSITORY_URL }}"
-echo "Username is ${{ secrets.AWS_USERNAME }}"
-echo "REPOSITORY_NAME is ${{ vars.REPOSITORY_NAME }}"
-            
-cd /home/${{ secrets.AWS_USERNAME }}
-if [ ! -d "${{ vars.APP_NAME }}" ]; then
-  echo "Pulling changes from repository"
-cd ${{ vars.REPOSITORY_NAME }}
-  git restore .
-  git pull
-  echo "Pull finished"
-else
-  echo "Cloning repository"
-  git clone ${{ env.REPOSITORY_URL }}
-  echo "Clone finished"
-fi
+
 # Go to the user's home directory
 cd /home/$AWS_USERNAME
 
