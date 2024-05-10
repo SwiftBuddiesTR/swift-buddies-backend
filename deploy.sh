@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Go to the user's home directory
-cd /home/$AWS_USERNAME
+cd /home/$AWS_USERNAME/$REPOSITORY_NAME
 
 # If the repository directory doesn't exist, clone it
 # if [ ! -d "$APP_NAME" ]; then
@@ -9,7 +9,7 @@ cd /home/$AWS_USERNAME
 # fi
 
 # Navigate to the repository directory (which is now guaranteed to exist)
-cd $REPOSITORY_NAME
+# cd $REPOSITORY_NAME
 
 go mod tidy
 # Build the Go application
