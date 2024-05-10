@@ -41,25 +41,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.AWS_HOST }}
-        username: ${{ secrets.AWS_USERNAME }}
-        key: ${{ secrets.AWS_KEY }}
-        script: |
-          echo "APP_NAME is ${{ env.APP_NAME }}"
-          echo "REPOSITORY_URL is ${{ env.REPOSITORY_URL }}"
-          echo "Username is ${{ secrets.AWS_USERNAME }}"
-          cd /home/${{ secrets.AWS_USERNAME }}
-          if [ ! -d "${{ env.APP_NAME }}" ]; then
-            git clone ${{ env.REPOSITORY_URL }}
-          else
-            cd ${{ env.APP_NAME }}
-            git pull
-          fi
-          chmod +x /home/${{ secrets.AWS_USERNAME }}/${{ env.APP_NAME }}/deploy.sh
-          /home/${{ secrets.AWS_USERNAME }}/${{ env.APP_NAME }}/deploy.sh
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Add GitHub to SSH known hosts
+        run: ssh-keyscan github.com >> ~/.ssh/known_hosts
+        
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.AWS_KEY }}
+          script: |
+            echo "APP_NAME is ${{ env.APP_NAME }}"
+            echo "REPOSITORY_URL is ${{ env.REPOSITORY_URL }}"
+            echo "Username is ${{ secrets.AWS_USERNAME }}"
+            cd /home/${{ secrets.AWS_USERNAME }}
+            if [ ! -d "${{ env.APP_NAME }}" ]; then
+              git clone ${{ env.REPOSITORY_URL }}
+            else
+              cd ${{ env.APP_NAME }}
+              git pull
+            fi
+            chmod +x /home/${{ secrets.AWS_USERNAME }}/${{ env.APP_NAME }}/deploy.sh
+            /home/${{ secrets.AWS_USERNAME }}/${{ env.APP_NAME }}/deploy.sh
