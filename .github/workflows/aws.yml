@@ -34,7 +34,7 @@ on:
 env:
    APP_NAME: BuddiesBackend
    APP_EXECUTABLE: BuddiesBackend
-   REPOSITORY_URL: https://github.com/SwiftBuddiesTR/swift-buddies-backend.git
+   REPOSITORY_URL: git@github.com:SwiftBuddiesTR/swift-buddies-backend.git
 
 jobs:
   build:
