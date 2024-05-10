@@ -47,13 +47,13 @@ jobs:
         key: ${{ secrets.AWS_KEY }}
         envs: AWS_HOST,AWS_USERNAME,APP_NAME,APP_EXECUTABLE,REPOSITORY_URL
         script: |
-          echo $AWS_USERNAME
-          cd /home/$AWS_USERNAME
-          if [ ! -d "$APP_NAME" ]; then
-            git clone $REPOSITORY_URL
+          echo ${{ secrets.AWS_USERNAME }}
+          cd /home/${{ secrets.AWS_USERNAME }}
+          if [ ! -d "${{ env.APP_NAME }}" ]; then
+            git clone ${{ env.REPOSITORY_URL }}
           else
-            cd $APP_NAME
+            cd ${{ env.APP_NAME }}
             git pull
           fi
-          chmod +x /home/$AWS_USERNAME/$APP_NAME/deploy.sh
-          /home/$AWS_USERNAME/$APP_NAME/deploy.sh
+          chmod +x /home/${{ secrets.AWS_USERNAME }}/${{ env.APP_NAME }}/deploy.sh
+          /home/${{ secrets.AWS_USERNAME }}/${{ env.APP_NAME }}/deploy.sh
